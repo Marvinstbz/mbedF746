@@ -65,7 +65,10 @@ Calcul du PPM= MSB*256 + LSB
     FIN Fonctionn I2C
     =================       
 */
-
+/*  ===================
+    Fonctionn seuil PPM
+    ===================       
+*/
 int CalculPPM ( uint16_t * dest){
 
     uint8_t MSB = (*dest>>8)& 0xFF;
@@ -91,7 +94,10 @@ int CalculPPM ( uint16_t * dest){
         return -1;
 
 }
-
+/*  =======================
+    FIN Fonctionn seuil PPM
+    =======================      
+*/
 
 
 /*  =========
@@ -269,28 +275,21 @@ static void btn4_event_cb(lv_event_t * e)
     lv_obj_t * btn4 = lv_event_get_target(e);
     if(code == LV_EVENT_CLICKED) {
 
-       //Affiche le profile avec l'appui sur le bouton
         
        //Cache le graphique
        // lv_obj_add_flag(chart,LV_OBJ_FLAG_HIDDEN);
        // lv_obj_add_flag(label,LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(labelText4,LV_OBJ_FLAG_HIDDEN);
 
-        //affiche les label
+        //affiche le texte 3
         lv_obj_clear_flag(labelText3,LV_OBJ_FLAG_HIDDEN);
-        
-        
-
+       
         uint16_t CO2PPM = GetCO2PPM();
             CalculPPM(&CO2PPM);
 
             char TABLEAU[60];
             snprintf(TABLEAU,sizeof(TABLEAU), "CO2 en temps reel: %d PPM",CO2PPM);
             lv_label_set_text(labelText3, TABLEAU);
-
-
-            
-
 
 
         printf("%d\n",CO2PPM);
@@ -334,24 +333,20 @@ Buzzer.write(0.00f); //0.0 pour éteindre le buzzer   1.0 plus jamais
     TEXTE1
     ======      
 */
+
     labelText1 = lv_label_create(lv_scr_act());
     
     lv_label_set_text(labelText1, "Qualite de l'air");
-
-     
 
 /*  ==========
     FIN TEXTE1
     ==========    
 */
 
-    
-
 /*  ======
     TEXTE3
     ======      
 */
-
 
     labelText3 = lv_label_create(lv_scr_act());
     lv_label_set_text(labelText3, "");
@@ -367,10 +362,9 @@ Buzzer.write(0.00f); //0.0 pour éteindre le buzzer   1.0 plus jamais
     ======      
 */
 
-
     labelText4 = lv_label_create(lv_scr_act());
-
-    lv_label_set_text(labelText4, "Voici les seuils de PPM:\n\rPPM<400 c'est excellent\n\r400<PPM<600 c'est bon\n\r600<PPM<1200 c'est moyen\n\r1200<PPM<2000 c'est mauvais\n\r2000<PPM<5000 c'est critique");
+    lv_label_set_recolor(labelText4, true); 
+    lv_label_set_text(labelText4, "Voici les seuils de PPM:\n\r #7AA95C PPM<400 c'est excellent\n\r #7AA95C 400<PPM<600 c'est bon\n\r #F7BD5F 600<PPM<1200 c'est moyen\n\r #A7001E 1200<PPM<2000 c'est mauvais\n\r #A7001E 2000<PPM<5000 c'est critique");
     lv_obj_align(labelText4, LV_ALIGN_CENTER, -70,0);
     lv_obj_add_flag(labelText4,LV_OBJ_FLAG_HIDDEN);
 
@@ -418,8 +412,6 @@ Buzzer.write(0.00f); //0.0 pour éteindre le buzzer   1.0 plus jamais
 //Pour masquer le Graphique au début
   //  lv_obj_add_flag(chart,LV_OBJ_FLAG_HIDDEN);
   //  lv_obj_add_flag(label,LV_OBJ_FLAG_HIDDEN);
-
-
 
 
 /*  ========
@@ -481,7 +473,6 @@ Buzzer.write(0.00f); //0.0 pour éteindre le buzzer   1.0 plus jamais
     Bouton 4
     ========       
 */
-    
     lv_obj_t * btn4 = lv_btn_create(lv_scr_act());     /*Add a button the current screen*/
     lv_obj_set_pos(btn4, 340, 216.25);                            /*Set its position*/
     lv_obj_set_size(btn4, 130, 40);                          /*Set its size*/
@@ -491,12 +482,10 @@ Buzzer.write(0.00f); //0.0 pour éteindre le buzzer   1.0 plus jamais
     lv_label_set_text(button4, "Affichage du \n CO2");                     /*Set the labels text*/
     lv_obj_center(button4);
 
-
 /*  ============
     Fin Bouton 4
     ============       
 */
-
 
     g_threadLvgl.unlock();
 /*  ============
@@ -504,11 +493,14 @@ Buzzer.write(0.00f); //0.0 pour éteindre le buzzer   1.0 plus jamais
     ============        
 */
 
-
     while (1) {
     
         uint16_t CO2PPM = GetCO2PPM();
+
         int EtatCritique = CalculPPM(&CO2PPM);
+                    char TABLEAU[60];
+            snprintf(TABLEAU,sizeof(TABLEAU), "CO2 en temps reel: %d PPM",CO2PPM);
+            lv_label_set_text(labelText3, TABLEAU);
         if(EtatCritique==0 || EtatCritique==1){
             Buzzer.write(0.00f);
         }
